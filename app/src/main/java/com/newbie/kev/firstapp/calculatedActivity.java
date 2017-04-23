@@ -7,10 +7,16 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class calculatedActivity extends ActionBarActivity {
+
+    //members
+    private int weekNumber;
+    private int dayNumber;
 
     private double[][] rpeTable = new double[][] {
         {.88, .85, .82, .80, .77, .75, .72, .69, .67, .64}, //6.5
@@ -98,163 +104,110 @@ public class calculatedActivity extends ActionBarActivity {
         double retVal = 0;
         retVal = Math.round(input + 2.5) / 5 * 5;
         return retVal;
-    };
+    }
 
     private double roundUpHalf(double input) {
         double retVal = 0;
         retVal = Math.round(input*2)/2f;
         return retVal;
-    };
+    }
 
-    private String[] exerciseName1;
-    private String[] exerciseName2;
-    private String[] exerciseName3;
+    private String[] getAllSets(String weightSInput, String rpeSInput, String repSInput, double weightMult) {
+        String[] retStringList = new String[8];
+        Arrays.fill(retStringList,"");
+        DecimalFormat df = new DecimalFormat("#.#");
+
+        if(!(weightSInput.isEmpty() || rpeSInput.isEmpty() || repSInput.isEmpty())) {
+            double weightInput = Double.parseDouble(weightSInput);
+            int repInt = Integer.parseInt(repSInput);
+            double rpeInput = Double.parseDouble(rpeSInput);
+
+            Log.d("weightInput", String.valueOf(weightInput));
+            Log.d("repInt", String.valueOf(repInt));
+            Log.d("rpeInput", String.valueOf(rpeInput));
+            if(weightInput == 0 || repInt == 0 || rpeInput == 0) {
+                return retStringList;
+            }
+            else {
+                double lasterm = (weightInput / rpeTable[rpeLookup(rpeInput)][(repInt - 1)]) * 1.005;
+                lasterm = Double.valueOf(df.format(lasterm));
+                lasterm = roundUpHalf(lasterm);
+                double workingWeight = lasterm * 1.005 * weightMult;
+                workingWeight = Double.valueOf(df.format(workingWeight));
+
+                retStringList[0] = String.valueOf(df.format(roundFive(workingWeight * .3))) + " x 5";
+                retStringList[1] = String.valueOf(df.format(roundFive(workingWeight * .5))) + " x 5";
+                retStringList[2] = String.valueOf(df.format(roundFive(workingWeight * .7))) + " x 3";
+                retStringList[3] = String.valueOf(df.format(roundFive(workingWeight * .8))) + " x 1";
+                retStringList[4] = String.valueOf(df.format(roundFive(workingWeight * .9))) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
+                retStringList[5] = String.valueOf(df.format(roundFive(workingWeight * .95))) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
+                retStringList[6] = String.valueOf(df.format(workingWeight)) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
+                retStringList[7] = String.valueOf("E 1rm " + lasterm);
+            }
+        }
+        return retStringList;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculated);
 
-        exerciseName1 = getResources().getStringArray(R.array.pip_2_exercises_1);
-        exerciseName2 = getResources().getStringArray(R.array.pip_2_exercises_2);
-        exerciseName3 = getResources().getStringArray(R.array.pip_2_exercises_3);
+        String[] exerciseName1 = getResources().getStringArray(R.array.pip_2_exercises_1);
+        String[] exerciseName2 = getResources().getStringArray(R.array.pip_2_exercises_2);
+        String[] exerciseName3 = getResources().getStringArray(R.array.pip_2_exercises_3);
 
+        //should really learn how to pass an array around
         Intent intent = getIntent();
         String weight1S = intent.getStringExtra("weight1");
-        Log.d("test", weight1S);
         String rep1S = intent.getStringExtra("rep1");
-        Log.d("test", rep1S);
         String rpe1S = intent.getStringExtra("rpe1");
-        Log.d("test", rpe1S);
         String weight2S = intent.getStringExtra("weight2");
-        Log.d("test", weight2S);
         String rep2S = intent.getStringExtra("rep2");
-        Log.d("test", rep2S);
         String rpe2S = intent.getStringExtra("rpe2");
-        Log.d("test", rpe2S);
         String weight3S = intent.getStringExtra("weight3");
-        Log.d("test", weight3S);
         String rep3S = intent.getStringExtra("rep3");
-        Log.d("test", rep3S);
         String rpe3S = intent.getStringExtra("rpe3");
-        Log.d("test", rpe3S);
         String weekNum = intent.getStringExtra("weekNum");
-        Log.d("test", weekNum);
         String dayNum = intent.getStringExtra("dayNum");
-        Log.d("test", dayNum);
 
-        double weight1I = Double.parseDouble(weight1S);
-        int rep1I = Integer.parseInt(rep1S);
-        double rpe1I = Double.parseDouble(rpe1S);
-        double weight2I = Double.parseDouble(weight2S);
-        int rep2I = Integer.parseInt(rep2S);
-        double rpe2I = Double.parseDouble(rpe2S);
-        double weight3I = Double.parseDouble(weight3S);
-        int rep3I = Integer.parseInt(rep3S);
-        double rpe3I = Double.parseDouble(rpe3S);
-        int weekNumber = Integer.parseInt(weekNum);
-        int dayNumber = Integer.parseInt(dayNum);
+        weekNumber = Integer.parseInt(weekNum);
+        dayNumber = Integer.parseInt(dayNum);
         Log.d("test", "Got the intent");
 
-        DecimalFormat df = new DecimalFormat("#.#");
         //for the PIP2 numbers work out this way
-        int rep1 = 0;
         double weightMult1 = 0;
-        int rep2 = 0;
         double weightMult2 = 0;
-        int rep3 = 0;
         double weightMult3 = 0;
 
+        //from here to before creating the grid i should make a function that returns a string array of the value passed on the weight inputs
         weightMult1 = exerMultArray[0][(dayNumber - 1)][(weekNumber - 1)];
         weightMult2 = exerMultArray[1][(dayNumber - 1)][(weekNumber - 1)];
         weightMult3 = exerMultArray[2][(dayNumber - 1)][(weekNumber - 1)];
-
-        Log.d("test", String.valueOf(weightMult1));
-        Log.d("test", String.valueOf(weightMult2));
-        Log.d("test", String.valueOf(weightMult3));
-        Log.d("test", String.valueOf(rpeLookup(rpe1I)));
-        double laste1rm = (weight1I/rpeTable[rpeLookup(rpe1I)][(rep1I-1)]) * 1.005;
-        laste1rm = Double.valueOf(df.format(laste1rm));
-        laste1rm = roundUpHalf(laste1rm);
-        double laste2rm = (weight2I/rpeTable[rpeLookup(rpe2I)][(rep2I-1)]) * 1.005;
-        laste2rm = Double.valueOf(df.format(laste2rm));
-        laste2rm = roundUpHalf(laste2rm);
-        double laste3rm = (weight3I/rpeTable[rpeLookup(rpe3I)][(rep3I-1)]) * 1.005;
-        laste3rm = Double.valueOf(df.format(laste3rm));
-        laste3rm = roundUpHalf(laste3rm);
-        double workingWeight1 = laste1rm * 1.005 * weightMult1;
-        workingWeight1 = Double.valueOf(df.format(workingWeight1));
-        double workingWeight2 = laste2rm * 1.005 * weightMult2;
-        workingWeight2 = Double.valueOf(df.format(workingWeight2));
-        double workingWeight3 = laste3rm *1.005 * weightMult3;
-        workingWeight3 = Double.valueOf(df.format(workingWeight3));
-        Log.d("test", "made it past the double calculations");
-
         String exer1Name = exerciseName1[dayNumber-1];
-        String exer1rep1 = String.valueOf(df.format(roundFive(workingWeight1 * .3))) + " x 5";
-        String exer1rep2 = String.valueOf(df.format(roundFive(workingWeight1 * .5))) + " x 5";
-        String exer1rep3 = String.valueOf(df.format(roundFive(workingWeight1 * .7))) + " x 3";
-        String exer1rep4 = String.valueOf(df.format(roundFive(workingWeight1 * .8))) + " x 1";
-        String exer1rep5 = String.valueOf(df.format(roundFive(workingWeight1 * .9))) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer1rep6 = String.valueOf(df.format(roundFive(workingWeight1 * .95))) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer1rep7 = String.valueOf(df.format(workingWeight1)) + " x " + String.valueOf(exerRepArray[0][(dayNumber - 1)][(weekNumber - 1)]);
         String exer2Name = exerciseName2[dayNumber-1];
-        String exer2rep1 = String.valueOf(df.format(roundFive(workingWeight2 * .3))) + " x 5";
-        String exer2rep2 = String.valueOf(df.format(roundFive(workingWeight2 * .5))) + " x 5";
-        String exer2rep3 = String.valueOf(df.format(roundFive(workingWeight2 * .7))) + " x 3";
-        String exer2rep4 = String.valueOf(df.format(roundFive(workingWeight2 * .8))) + " x 1";
-        String exer2rep5 = String.valueOf(df.format(roundFive(workingWeight2 * .9))) + " x " + String.valueOf(exerRepArray[1][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer2rep6 = String.valueOf(df.format(roundFive(workingWeight2 * .95))) + " x " + String.valueOf(exerRepArray[1][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer2rep7 = String.valueOf(df.format(workingWeight2)) + " x " + String.valueOf(exerRepArray[1][(dayNumber - 1)][(weekNumber - 1)]);
         String exer3Name = exerciseName3[dayNumber-1];
-        String exer3rep1 = String.valueOf(df.format(roundFive(workingWeight3 * .3))) + " x 5";
-        String exer3rep2 = String.valueOf(df.format(roundFive(workingWeight3 * .5))) + " x 5";
-        String exer3rep3 = String.valueOf(df.format(roundFive(workingWeight3 * .7))) + " x 3";
-        String exer3rep4 = String.valueOf(df.format(roundFive(workingWeight3 * .8))) + " x 1";
-        String exer3rep5 = String.valueOf(df.format(roundFive(workingWeight3 * .9))) + " x " + String.valueOf(exerRepArray[2][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer3rep6 = String.valueOf(df.format(roundFive(workingWeight3 * .95))) + " x " + String.valueOf(exerRepArray[2][(dayNumber - 1)][(weekNumber - 1)]);
-        String exer3rep7 = String.valueOf(df.format(workingWeight3)) + " x " + String.valueOf(exerRepArray[2][(dayNumber - 1)][(weekNumber - 1)]);
 
         GridView outputGrid = (GridView) findViewById(R.id.calculationGridView);
         ArrayList<String> items = new ArrayList<String>();
+
+        //too lazy right now to fix the grid just going to cheat
+        //all list have the same length
+        String[] setList1 = getAllSets(weight1S, rpe1S, rep1S, weightMult1);
+        String[] setList2 = getAllSets(weight2S, rpe2S, rep2S, weightMult2);
+        String[] setList3 = getAllSets(weight3S, rpe3S, rep3S, weightMult3);
 
         items.add(exer1Name);
         items.add(exer2Name);
         items.add(exer3Name);
 
-        items.add(exer1rep1);
-        items.add(exer2rep1);
-        items.add(exer3rep1);
+        for(int alIndex = 0; alIndex < setList1.length; alIndex++)
+        {
+            items.add(setList1[alIndex]);
+            items.add(setList2[alIndex]);
+            items.add(setList3[alIndex]);
+        }
 
-        items.add(exer1rep2);
-        items.add(exer2rep2);
-        items.add(exer3rep2);
-
-        items.add(exer1rep3);
-        items.add(exer2rep3);
-        items.add(exer3rep3);
-
-        items.add(exer1rep4);
-        items.add(exer2rep4);
-        items.add(exer3rep4);
-
-        items.add(exer1rep5);
-        items.add(exer2rep5);
-        items.add(exer3rep5);
-
-        items.add(exer1rep6);
-        items.add(exer2rep6);
-        items.add(exer3rep6);
-
-        items.add(exer1rep7);
-        items.add(exer2rep7);
-        items.add(exer3rep7);
-
-        items.add(String.valueOf(laste1rm));
-        items.add(String.valueOf(laste2rm));
-        items.add(String.valueOf(laste3rm));
-        
-        System.out.println("adding items");
         ArrayAdapter<String> simpleAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,items);
         outputGrid.setAdapter(simpleAdapter);
         Log.d("test", "set adapter");
