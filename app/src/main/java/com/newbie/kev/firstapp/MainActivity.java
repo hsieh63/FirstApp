@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -25,9 +27,28 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Static array of names of exercises to fill in
         exerciseName1 = getResources().getStringArray(R.array.pip_2_exercises_1);
         exerciseName2 = getResources().getStringArray(R.array.pip_2_exercises_2);
         exerciseName3 = getResources().getStringArray(R.array.pip_2_exercises_3);
+
+        //Get day of week for selection
+        //Just so I don't have to switch to it.
+        Calendar cCalendar = Calendar.getInstance();
+        int chosenDay = 0;
+        switch(cCalendar.get(Calendar.DAY_OF_WEEK)) {
+            case Calendar.TUESDAY:
+                chosenDay = 1;
+                break;
+            case Calendar.THURSDAY:
+                chosenDay = 2;
+                break;
+            case Calendar.FRIDAY:
+                chosenDay = 3;
+                break;
+            default:
+                break;
+        }
 
         Spinner weekNumberDrop = (Spinner) findViewById(R.id.weekNumSpinner);
         ArrayAdapter<CharSequence> wnSpinAdapter = ArrayAdapter.createFromResource(this, R.array.week_number_array, android.R.layout.simple_spinner_item);
@@ -38,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
         ArrayAdapter<CharSequence> daySpinAdapter = ArrayAdapter.createFromResource(this, R.array.day_number_array, android.R.layout.simple_spinner_item);
         daySpinAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dayNumberDrop.setAdapter(daySpinAdapter);
+        dayNumberDrop.setSelection(chosenDay);
 
         Spinner exerciseRPE1Drop = (Spinner) findViewById(R.id.exerciseRPE1);
         ArrayAdapter<CharSequence> exerciseRPE1Adapter = ArrayAdapter.createFromResource(this, R.array.rpe_array, android.R.layout.simple_spinner_item);
@@ -99,6 +121,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void calculatePage(View view){
+        //is there a way to save these items when i come back from another screen?
         Intent intent = new Intent(this, calculatedActivity.class);
         String exerciseWeight1 = ((EditText) findViewById(R.id.exerciseWeight1)).getText().toString();
         String exerciseReps1 = ((EditText) findViewById(R.id.exerciseReps1)).getText().toString();
@@ -126,5 +149,20 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra("weekNum", weekNumber);
         Log.d("test","Before starting intent");
         startActivity(intent);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
     }
 }
