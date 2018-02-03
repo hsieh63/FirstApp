@@ -1,5 +1,6 @@
 package com.newbie.kev.firstapp;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -40,10 +41,10 @@ public class MainActivity extends ActionBarActivity {
             case Calendar.TUESDAY:
                 chosenDay = 1;
                 break;
-            case Calendar.THURSDAY:
+            case Calendar.FRIDAY:
                 chosenDay = 2;
                 break;
-            case Calendar.FRIDAY:
+            case Calendar.SATURDAY:
                 chosenDay = 3;
                 break;
             default:
@@ -120,8 +121,7 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void calculatePage(View view){
-        //is there a way to save these items when i come back from another screen?
+    public void calculatePage(View view) {
         Intent intent = new Intent(this, calculatedActivity.class);
         String exerciseWeight1 = ((EditText) findViewById(R.id.exerciseWeight1)).getText().toString();
         String exerciseReps1 = ((EditText) findViewById(R.id.exerciseReps1)).getText().toString();
@@ -132,23 +132,31 @@ public class MainActivity extends ActionBarActivity {
         String exerciseWeight3 = ((EditText) findViewById(R.id.exerciseWeight3)).getText().toString();
         String exerciseReps3 = ((EditText) findViewById(R.id.exerciseReps3)).getText().toString();
         String exerciseRPE3 = ((Spinner) findViewById(R.id.exerciseRPE3)).getSelectedItem().toString();
-        Spinner dayNumberDrop = (Spinner) findViewById(R.id.dayNumSpinner);
-        String dayNumber = dayNumberDrop.getSelectedItem().toString();
-        Spinner weekNumberDrop = (Spinner) findViewById(R.id.weekNumSpinner);
-        String weekNumber = weekNumberDrop.getSelectedItem().toString();
-        intent.putExtra("weight1", exerciseWeight1);
-        intent.putExtra("rep1", exerciseReps1);
-        intent.putExtra("rpe1", exerciseRPE1);
-        intent.putExtra("weight2", exerciseWeight2);
-        intent.putExtra("rep2", exerciseReps2);
-        intent.putExtra("rpe2", exerciseRPE2);
-        intent.putExtra("weight3", exerciseWeight3);
-        intent.putExtra("rep3", exerciseReps3);
-        intent.putExtra("rpe3", exerciseRPE3);
-        intent.putExtra("dayNum", dayNumber);
-        intent.putExtra("weekNum", weekNumber);
-        Log.d("test","Before starting intent");
-        startActivity(intent);
+        //check for empty and pop up to stay on page
+        if (exerciseWeight1.isEmpty() || exerciseReps1.isEmpty() || exerciseWeight1.isEmpty() || exerciseReps1.isEmpty() || exerciseWeight1.isEmpty() || exerciseReps1.isEmpty()) {
+            AlertDialog.Builder emptyBoxes = new AlertDialog.Builder(this);
+            emptyBoxes.setMessage("Please input weights or reps.");
+            emptyBoxes.setTitle("Error");
+            emptyBoxes.show();
+        } else {
+            Spinner dayNumberDrop = (Spinner) findViewById(R.id.dayNumSpinner);
+            String dayNumber = dayNumberDrop.getSelectedItem().toString();
+            Spinner weekNumberDrop = (Spinner) findViewById(R.id.weekNumSpinner);
+            String weekNumber = weekNumberDrop.getSelectedItem().toString();
+            intent.putExtra("weight1", exerciseWeight1);
+            intent.putExtra("rep1", exerciseReps1);
+            intent.putExtra("rpe1", exerciseRPE1);
+            intent.putExtra("weight2", exerciseWeight2);
+            intent.putExtra("rep2", exerciseReps2);
+            intent.putExtra("rpe2", exerciseRPE2);
+            intent.putExtra("weight3", exerciseWeight3);
+            intent.putExtra("rep3", exerciseReps3);
+            intent.putExtra("rpe3", exerciseRPE3);
+            intent.putExtra("dayNum", dayNumber);
+            intent.putExtra("weekNum", weekNumber);
+            Log.d("test", "Before starting intent");
+            startActivity(intent);
+        }
     }
 
     @Override
