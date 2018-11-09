@@ -110,11 +110,11 @@ class cPowerToLift {
                 double weightMult = 0;
                 //exercise 3 aims for rpe 8
                 if(exerciseChoice == 2) {
-                    weightMult = rpeTable[4][(targetReps - 1)];
+                    weightMult = rpeTable[rpeLookup(8)][(targetReps - 1)];
                 }
                 //exercise 1 and 2 aim for rpe 9
                 else {
-                    weightMult = rpeTable[6][(targetReps - 1)];
+                    weightMult = rpeTable[rpeLookup(9)][(targetReps - 1)];
                 }
 
                 lasterm = Double.valueOf(df.format(lasterm));

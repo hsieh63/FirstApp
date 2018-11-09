@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.newbie.kev.firstapp" >
+    package="com.newbie.kev.firstapp">
 
     <application
         android:allowBackup="true"
@@ -10,7 +10,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,11 +21,14 @@
             android:name=".calculatedActivity"
             android:label="@string/title_activity_calculated"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.newbie.kev.firstapp.MainActivity" />
         </activity>
+        <activity
+            android:name=".pwrToLiftSwipe"
+            android:label="@string/title_activity_pwr_to_lift_swipe"></activity>
     </application>
 
 </manifest>
